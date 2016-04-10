@@ -14,8 +14,32 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
+void checkInputError(char *argv[3]){
+	int i;
+
+	if(argc != 3){
+		printf("Error! Please input 3 arguments as the time, start time and end time.")
+		exit(1);
+	}
+
+	for(i=0; i < argc; i++){
+		if(argc[i] < '0' || argc[i] > '23'){
+			printf("Error! Input 0~23 numbers");
+		}
+	}
+}
+
+
 int main(int argc, char *argv[3]){
 
+	if(serchTimeRange(argc[0], argc[1], argc[2]) == 1){
+		printf("%d時は%d時から%d時に含まれます", argc[0], argc[1], argc[2]);
+	}
+	else{
+		printf("%d時は%d時から%d時に含まれません", argc[0], argc[1], argc[2]);
+	}
 }
+
 
 
