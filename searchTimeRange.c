@@ -15,33 +15,53 @@
 #include <stdlib.h>
 #include <math.h>
 
-void checkInputError(int argNum, char *argChara[4]){
+
+int *strings2Int(int size, char *strings[]){
+	int i = 1;
+	int argInt[size-1];
+	
+	for(i = 1; i < size; i++){
+		argInt[i-1] = atof(strings[i]);
+	}
+	return &argInt;
+}
+
+void checkInputError(int argNum, int *argIntNums){
 	int i;
-	int argInt;
 
 	if(argNum != 4){
 		printf("Error! Please input 3 arguments as the time, start time and end time.\n");
 		exit(1);
 	}
 
-	for(i=1; i < argNum; i++){
-		argInt = atof(argChara[i]);
-		if(argInt < 0 || argInt > 23){
-			printf("%d is Error! Input 0~23 numbers\n", argInt);
+	for(i = 0; i < argNum-1; i++){
+		if(argIntNums[i] < 0 || argIntNums[i] > 23){
+			printf("%d is Error! Input 0~23 numbers\n", argIntNums[i]);
 			exit(1);
 		}
 	}
 }
 
+int searchTimeRange(char *argv){
+	int *argInt;
 
-int main(int argc, char *argv[4]){
-	checkInputError(argc, argv);
+
+}
+
+int main(int argc, char *argv[]){
+
+	int *argIntNums;
+
+	argIntNums = strings2Int(argc, argv);
+	checkInputError(argc, argIntNums);
 
 	/*
-	if(serchTimeRange(argc[0], argc[1], argc[2]) == 1){
+	if(serchTimeRange(argv) == 1){
+		//任意の処理を書く
 		printf("%d時は%d時から%d時に含まれます", argc[0], argc[1], argc[2]);
 	}
 	else{
+		//任意の処理を書く
 		printf("%d時は%d時から%d時に含まれません", argc[0], argc[1], argc[2]);
 	}*/
 }
