@@ -13,8 +13,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
+#define ARGMENTS_LIMIT_NUMBER 4
 
 int *strings2Int(int size, char *strings[]){
 	int i = 1;
@@ -29,7 +29,7 @@ int *strings2Int(int size, char *strings[]){
 void checkInputError(int argNum, int *argIntNums){
 	int i;
 
-	if(argNum != 4){
+	if(argNum != ARGMENTS_LIMIT_NUMBER){
 		printf("Error! Please input 3 arguments as the time, start time and end time.\n");
 		exit(1);
 	}
@@ -42,28 +42,55 @@ void checkInputError(int argNum, int *argIntNums){
 	}
 }
 
-int searchTimeRange(char *argv){
-	int *argInt;
+int searchTimeRange(int *times){
+	int searchedTime;
+	int fromTime;
+	int endTime;
 
-
+	searchedTime  = times[0];
+	fromTime      = times[1];
+	endTime       = times[2]; 
+	
+	if(fromTime < endTime){
+		if(fromTime <= searchedTime && searchedTime < endTime){
+			return 1;
+		}
+		else{
+			return 0;
+		}
+	}
+	else if(fromTime == endTime){
+		if(fromTime <= searchedTime && searchedTime <= endTime){
+			return 1;
+		}
+		else{
+			return 0;
+		}
+	}
+	else{
+		if(fromTime <= searchedTime || searchedTime < endTime){
+			return 1;
+		}
+		else{
+			return 0;
+		}
+	}
 }
 
 int main(int argc, char *argv[]){
-
 	int *argIntNums;
 
 	argIntNums = strings2Int(argc, argv);
 	checkInputError(argc, argIntNums);
 
-	/*
-	if(serchTimeRange(argv) == 1){
+	if(searchTimeRange(argIntNums) == 1){
 		//任意の処理を書く
-		printf("%d時は%d時から%d時に含まれます", argc[0], argc[1], argc[2]);
+		printf("%d時は%d時から%d時に含まれます\n", argIntNums[0], argIntNums[1], argIntNums[2]);
 	}
 	else{
 		//任意の処理を書く
-		printf("%d時は%d時から%d時に含まれません", argc[0], argc[1], argc[2]);
-	}*/
+		printf("%d時は%d時から%d時に含まれません\n", argIntNums[0], argIntNums[1], argIntNums[2]);
+	}
 }
 
 
