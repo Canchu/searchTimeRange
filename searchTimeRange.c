@@ -41,27 +41,33 @@
  * 	int *times 変換後の時刻の数値を格納するメモリのポインタ
 */
 void args2Int(char *strings[],int *times){
+	char *ep = NULL;//strodの変換不能文字列を格納するメモリのポインタ
+
 	//times[0]に調べる時刻・times[1]に開始時刻・times[2]に終了時刻の数値を格納
-	times[0] = atof(strings[SEARCHED_TIME_ARG]);
-	times[1] = atof(strings[START_TIME_ARG]);
-	times[2] = atof(strings[END_TIME_ARG]);
+	times[0] = strtod(strings[SEARCHED_TIME_ARG], &ep);
+	times[1] = strtod(strings[START_TIME_ARG], &ep);
+	times[2] = strtod(strings[END_TIME_ARG], &ep);
+
+	//文字が含まれていた場合はエラー
+	//エラー文字がNULLではない=何か格納されている
+	if(ep != NULL){
+		//エラー文字は数字ではない=文字である
+		if( !('0' <= ep[0] && ep[0] <= '9')){
+			printf("Error! Please input numeric numbers\n");
+			//もしエラーがあればプログラムを終了する
+			exit(1);
+		}
+	}
 }
 
 /**
  * checkInputError
- * コマンドラインで受け取った数値の個数と時間の範囲(0〜23)の数値であるかどうかのチェックを行う関数
+ * 時間の範囲(0〜23)の数値であるかどうかのチェックを行う関数
  * @input
- * 	int argNum コマンドラインに入力された文字列
  * 	int *times 調べる時刻・開始時刻・終了時刻の数値が格納されたメモリのポインタ
 */
-void checkInputError(int argNum, int *times){
+void checkInputError(int *times){
 	int i;
-	//コマンドライン引数の個数チェック
-	if(argNum != ARGMENTS_LIMIT){
-		printf("Error! Please input 3 arguments as the time, start time and end time.\n");
-		//もしエラーがあればプログラムを終了する
-		exit(1);
-	}
 	//時刻の数字が0〜23かのチェック
 	for(i = 0; i < 3; i++){
 		if(times[i] < 0 || times[i] > 23){
@@ -126,12 +132,18 @@ int searchTimeRange(int *times){
 int main(int argc, char *argv[]){
 	//時刻の数値を格納するメモリ領域の確保
 	int times[3];
+	
+	//コマンドライン引数の個数チェック
+	if(argc != ARGMENTS_LIMIT){
+		printf("Error! Please input 3 arguments as the time, start time and end time.\n");
+		exit(1);
+	}
 
 	//時刻の数値を取り出す
 	args2Int(argv, &times[0]);
 
 	//エラーチェック
-	checkInputError(argc, times);
+	checkInputError(times);
 
 	//調べた結果の標準出力
 
