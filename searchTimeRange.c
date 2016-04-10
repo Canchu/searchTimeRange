@@ -8,33 +8,40 @@
 - ただし開始時刻と終了時刻が同じ場合は含むと判断すること。
 - 開始時刻が22時で終了時刻が5時、というような指定をされても動作すること。
 
+@Usage
+リンカ起動時にコマンドライン引数を4つ以下のように記述する。
+./searchTimeRange ある時刻 開始時刻 - 終了時刻
+
+例：6時が10時から12時の間に含まれるかどうか調べる
+./searchTimeRange 6 10 - 12
+
+
 @author Ayano Masaki
 ********************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#define ARGMENTS_LIMIT_NUMBER 4
+//コマンドライン引数の上限数
+#define ARGMENTS_LIMIT 5 
 
-int *strings2Int(int size, char *strings[]){
+void strings2Int(char *strings[],int *argInt){
 	int i = 1;
-	int argInt[size-1];
 	
-	for(i = 1; i < size; i++){
-		argInt[i-1] = atof(strings[i]);
-	}
-	return &argInt;
+	argInt[0] = atof(strings[1]);
+	argInt[1] = atof(strings[2]);
+	argInt[2] = atof(strings[4]);
 }
 
 void checkInputError(int argNum, int *argIntNums){
 	int i;
 
-	if(argNum != ARGMENTS_LIMIT_NUMBER){
+	if(argNum != ARGMENTS_LIMIT){
 		printf("Error! Please input 3 arguments as the time, start time and end time.\n");
 		exit(1);
 	}
 
-	for(i = 0; i < argNum-1; i++){
+	for(i = 0; i < 3; i++){
 		if(argIntNums[i] < 0 || argIntNums[i] > 23){
 			printf("%d is Error! Input 0~23 numbers\n", argIntNums[i]);
 			exit(1);
@@ -78,9 +85,9 @@ int searchTimeRange(int *times){
 }
 
 int main(int argc, char *argv[]){
-	int *argIntNums;
+	int argIntNums[3];
 
-	argIntNums = strings2Int(argc, argv);
+	strings2Int(argv, &argIntNums[0]);
 	checkInputError(argc, argIntNums);
 
 	if(searchTimeRange(argIntNums) == 1){
