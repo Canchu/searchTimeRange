@@ -4,9 +4,9 @@
 以下のような条件を満たす．
 - ある時刻と、時間の範囲(開始時刻と終了時刻)を受け取る。
 - 時刻は、6時であれば6のような指定でよく、分単位は問わない。
-- 範囲指定は、開始時刻を含み、終了時刻は含まないと判断すること。
-- ただし開始時刻と終了時刻が同じ場合は含むと判断すること。
-- 開始時刻が22時で終了時刻が5時、というような指定をされても動作すること。
+- 範囲指定は、開始時刻を含み、終了時刻は含まないと判断する。
+- ただし開始時刻と終了時刻が同じ場合は含むと判断する。
+- 開始時刻が22時で終了時刻が5時、というような指定をされても動作する。
 
 @Usage
 リンカ起動時にコマンドライン引数を4つ以下のように記述する。
@@ -15,7 +15,6 @@
 例：6時が10時から12時の間に含まれるかどうか調べる
 ./searchTimeRange 6 10 - 12
 
-
 @author Ayano Masaki
 ********************************************************************/
 
@@ -23,42 +22,75 @@
 #include <stdlib.h>
 
 //コマンドライン引数の上限数
-#define ARGMENTS_LIMIT 5 
+#define ARGMENTS_LIMIT 5
 
-void strings2Int(char *strings[],int *argInt){
-	int i = 1;
-	
-	argInt[0] = atof(strings[1]);
-	argInt[1] = atof(strings[2]);
-	argInt[2] = atof(strings[4]);
+//調べる時刻のコマンドライン引数での番号指定
+#define SEARCHED_TIME_ARG 1
+
+//開始時刻のコマンドライン引数での番号指定
+#define START_TIME_ARG 2
+
+//終了時刻のコマンドライン引数での番号指定
+#define END_TIME_ARG 4
+
+/**
+ * strings2Int
+ * コマンドラインで受け取った文字列から時刻を表す文字だけを抜き出し、数値に変換する関数
+ * @input
+ * 	char *strings[] コマンドライン文字列
+ * 	int *times 変換後の時刻の数値を格納するメモリのポインタ
+*/
+void args2Int(char *strings[],int *times){
+	//times[0]に調べる時刻・times[1]に開始時刻・times[2]に終了時刻の数値を格納
+	times[0] = atof(strings[SEARCHED_TIME_ARG]);
+	times[1] = atof(strings[START_TIME_ARG]);
+	times[2] = atof(strings[END_TIME_ARG]);
 }
 
-void checkInputError(int argNum, int *argIntNums){
+/**
+ * checkInputError
+ * コマンドラインで受け取った数値の個数と時間の範囲(0〜23)の数値であるかどうかのチェックを行う関数
+ * @input
+ * 	int argNum コマンドラインに入力された文字列
+ * 	int *times 調べる時刻・開始時刻・終了時刻の数値が格納されたメモリのポインタ
+*/
+void checkInputError(int argNum, int *times){
 	int i;
-
+	//コマンドライン引数の個数チェック
 	if(argNum != ARGMENTS_LIMIT){
 		printf("Error! Please input 3 arguments as the time, start time and end time.\n");
+		//もしエラーがあればプログラムを終了する
 		exit(1);
 	}
-
+	//時刻の数字が0〜23かのチェック
 	for(i = 0; i < 3; i++){
-		if(argIntNums[i] < 0 || argIntNums[i] > 23){
-			printf("%d is Error! Input 0~23 numbers\n", argIntNums[i]);
+		if(times[i] < 0 || times[i] > 23){
+			printf("%d is Error! Input 0~23 numbers\n", times[i]);
 			exit(1);
 		}
 	}
 }
 
+/**
+ * searchTimeRange
+ * 調べる時刻が開始時刻と終了時刻の範囲に含まれているか確認する関数
+ * @input
+ * 	int *times 調べる時刻・開始時刻・終了時刻の数値が格納されたメモリのポインタ
+ * @output
+ *  範囲に含まれる場合は1、含まれない場合は0
+*/
 int searchTimeRange(int *times){
-	int searchedTime;
-	int fromTime;
-	int endTime;
+	int searchedTime;//調べる時刻
+	int fromTime;//開始時刻
+	int endTime;//終了時刻
 
 	searchedTime  = times[0];
 	fromTime      = times[1];
 	endTime       = times[2]; 
 	
+	//開始時刻が終了時刻より早い場合=日を跨いでいない場合
 	if(fromTime < endTime){
+		//開始時刻 <= 調べる時刻 < 終了時刻　のとき含むと判断する
 		if(fromTime <= searchedTime && searchedTime < endTime){
 			return 1;
 		}
@@ -66,15 +98,14 @@ int searchTimeRange(int *times){
 			return 0;
 		}
 	}
+	//開始時刻が終了時刻と同じ場合
 	else if(fromTime == endTime){
-		if(fromTime <= searchedTime && searchedTime <= endTime){
-			return 1;
-		}
-		else{
-			return 0;
-		}
+		//含むと判断する
+		return 1;
 	}
+	//終了時刻が開始時刻より早い場合=日を跨いでいる場合
 	else{
+		//開始時刻 <= 調べる時刻 または 調べる時刻 < 終了時刻　のとき含むと判断する
 		if(fromTime <= searchedTime || searchedTime < endTime){
 			return 1;
 		}
@@ -84,19 +115,35 @@ int searchTimeRange(int *times){
 	}
 }
 
+/**
+ * main
+ *　標準入出力を行う関数
+ * @input
+ * 	コマンドラインからの時刻文字列
+ * @output
+ * 	調べた結果の標準出力
+*/
 int main(int argc, char *argv[]){
-	int argIntNums[3];
+	//時刻の数値を格納するメモリ領域の確保
+	int times[3];
 
-	strings2Int(argv, &argIntNums[0]);
-	checkInputError(argc, argIntNums);
+	//時刻の数値を取り出す
+	args2Int(argv, &times[0]);
 
-	if(searchTimeRange(argIntNums) == 1){
+	//エラーチェック
+	checkInputError(argc, times);
+
+	//調べた結果の標準出力
+
+	//範囲内の場合
+	if(searchTimeRange(times) == 1){
 		//任意の処理を書く
-		printf("%d時は%d時から%d時に含まれます\n", argIntNums[0], argIntNums[1], argIntNums[2]);
+		printf("%d時は%d時から%d時に含まれます\n", times[0], times[1], times[2]);
 	}
+	//範囲外の場合
 	else{
 		//任意の処理を書く
-		printf("%d時は%d時から%d時に含まれません\n", argIntNums[0], argIntNums[1], argIntNums[2]);
+		printf("%d時は%d時から%d時に含まれません\n", times[0], times[1], times[2]);
 	}
 }
 
